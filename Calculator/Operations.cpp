@@ -2,10 +2,10 @@
 
 Operations::Operations() {
 	binary_operations["+"] = [](double a, double b)->double {return a + b; };
-	binary_operations["-"] = [](double a, double b)->double {return a - b; };
+	binary_operations["-"] = [](double a, double b)->double {return b-a; };
 	binary_operations["*"] = [](double a, double b)->double {return a * b; };
 	binary_operations["/"] = [](double a, double b)->double {
-		if (b != 0) return a / b;
+		if (b != 0) return b/a;
 		throw std::exception("Division by zero!"); 
 	};
 
