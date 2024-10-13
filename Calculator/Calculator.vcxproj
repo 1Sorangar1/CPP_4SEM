@@ -129,6 +129,7 @@
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Calc.cpp" />
+    <ClCompile Include="Importer.cpp" />
     <ClCompile Include="Operations.cpp" />
   </ItemGroup>
   <ItemGroup>

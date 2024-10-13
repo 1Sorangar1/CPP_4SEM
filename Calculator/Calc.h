@@ -21,29 +21,3 @@ public:
 };
 
 
-std::string numberExtract(const std::string& input, int& index) {
-	std::string number = "";
-	int current = 0;
-	while ((isdigit(input[index]) || input[index] == '.')) {
-		if (input[index] == '.') { current++; }
-		if (current == 2) { throw std::exception("Invalid number input"); }
-		number += input[index];
-		index++;
-	}
-	return number;
-}
-
-
-std::string operationExtract(const std::string& input, int& index) {
-	std::string operation = "";
-	while (isalpha(input[index]) || (input[index]) == '^') {
-		operation += input[index];
-		index++;
-	}
-	if ((input[index] != '(') && (input[index - 1] != '^')) {
-		throw std::exception("Operation is provided in incorrect way");
-		return "";
-	}
-	return operation;
-}
-
