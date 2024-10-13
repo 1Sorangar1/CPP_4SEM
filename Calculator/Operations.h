@@ -21,6 +21,8 @@ public:
     bool unaryExistance(const std::string& operation);
 	double calculation(const std::string& operation, double a, double b);
 	bool operationExistance(const std::string& name);
+	static Operations& getOperations();
+
 };
 
 void Operations::addBinaryOperation(const std::string& dll_filename, binaryOperation& operation, unsigned short priority) {
@@ -56,3 +58,7 @@ double Operations::calculation(const std::string& operation, double a, double b)
 	return 0;
 };
 
+Operations& Operations::getOperations() {
+	static Operations instance;
+	return instance;
+};

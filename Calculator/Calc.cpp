@@ -1,77 +1,97 @@
 #include "Calc.h"
 
 
-std::vector<std::string> Calculator::parsing(const std::string& input_data) {
-    std::string expression = input_data;
+std::vector<std::string> Calculator::parsing(const std::string& expression) {
+    std::string expr = expression;
     std::vector<std::string> result;
-    std::stack<std::string> stek;
-    expression.erase(remove(expression.begin(), expression.end(), ' '), expression.end());
-    for (int i = 0; i < expression.size();) {
-        char current_symbol = expression[i];
-        if (isdigit(current_symbol)) {
-            result.push_back(numberExtract(expression, i));
+    std::stack<std::string> stack;
+    expr.erase(remove(expr.begin(), expr.end(), ' '), expr.end());
+
+    for (int i = 0; i < expr.size();) {
+        char cur_sym = expr[i];
+        if (isdigit(cur_sym)) {
+            result.push_back(numberExtract(expr, i));
         }
-        else if (current_symbol == '(') {
-            stek.push("(");
+        else if (isalpha(cur_sym)) {
+            std::string func = operationExtract(expr, i);
+            if (func == "^") {
+                func = "pow";
+            }
+            if (!operations.operationExistance(func)) {
+                importer.loadDll(func, operations);
+            }
+            while (!stack.empty() && operations.priority(func) <= operations.priority(stack.top())) {
+                result.push_back(stack.top());
+                stack.pop();
+            }
+            stack.push(func);
+        }
+        else if (cur_sym == '(') {
+            stack.push("(");
             ++i;
         }
-        else if (current_symbol == ')') {
-            while (!stek.empty() && stek.top() != "(") {
-                result.push_back(stek.top());
-                stek.pop();
+        else if (cur_sym == ')') {
+            while (!stack.empty() && stack.top() != "(") {
+                result.push_back(stack.top());
+                stack.pop();
             }
-            if (stek.empty() || stek.top() != "(") {
-                throw std::exception("Incorrect brackets sequence");
+            if (stack.empty() || stack.top() != "(") {
+                throw std::exception("Incorrect bracket sequence");
             }
-            stek.pop();
+            stack.pop();
             ++i;
         }
-        else if (operations.operationExistance({ current_symbol })) {
-            std::string op(1, current_symbol);
-            while (!stek.empty() && operations.priority(op) <= operations.priority(stek.top())) {
-                result.push_back(stek.top());
-                stek.pop();
+        else if (operations.operationExistance({ cur_sym })) {
+            std::string op(1, cur_sym);
+            while (!stack.empty() && operations.priority(op) <= operations.priority(stack.top())) {
+                result.push_back(stack.top());
+                stack.pop();
             }
-            stek.push(op);
+            stack.push(op);
             ++i;
         }
         else {
             throw std::exception("Invalid symbol in expression");
         }
     }
-    while (!stek.empty()) {
-        if (stek.top() == "(") {
-            throw std::exception("Mismatched parentheses");
+    while (!stack.empty()) {
+        if (stack.top() == "(") {
+            throw std::exception("Incorrect bracket sequence");
         }
-        result.push_back(stek.top());
-        stek.pop();
+        result.push_back(stack.top());
+        stack.pop();
     }
 
     return result;
 }
 
 
-double Calculator::calculate(const std::string& input_data) {
-    std::vector<std::string> parsed_string = parsing(input_data);
-    std::stack<double> result;
-    double argument1 = 0, argument2 = 0;
+double Calculator::calculate(const std::string& input) {
+    std::vector<std::string> parsed_string = parsing(input);
+    std::stack<double> stek;
 
-    for (auto& element : parsed_string) {
-        if (isdigit(element[0])) {
-            result.push(std::stod(element));
+    for (const auto& symbol : parsed_string) {
+        if (isdigit(symbol[0])) {
+            stek.push(std::stod(symbol));
         }
         else {
-            if (result.empty()) { throw std::exception("Operation is in lack of argumrnts"); }
-            argument1 = result.top();
-            result.pop();
-
-            if (operations.binaryExistance(element)) {
-                if (result.empty()) { throw std::exception("Operation is in lack of argumrnts"); }
-                argument2 = result.top();
-                result.pop();
-                result.push(operations.calculation(element, argument2, argument1));
+            double argument1 = stek.top();
+            stek.pop();
+            double result;
+            if (operations.binaryExistance(symbol)) {
+                if (stek.empty()) throw std::exception("Not enough arguments for binary operation");
+                double argument2 = stek.top(); 
+                stek.pop();
+                result = operations.calculation(symbol, argument1, argument2);
             }
+            else if (operations.unaryExistance(symbol)) {
+                result = operations.calculation(symbol, argument1, 0);
+            }
+            else {
+                throw std::exception("Unknown operation");
+            }
+            stek.push(result);
         }
     }
-    return result.top();
+    return stek.top();
 }
