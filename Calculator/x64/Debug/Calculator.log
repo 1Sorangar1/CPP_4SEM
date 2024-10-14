@@ -1,3 +1,3 @@
-﻿  Operations.cpp
-C:\Users\User\source\repos\CPP_4SEM\Calculator\Operations.cpp(1,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+﻿  Importer.cpp
+  The contents of <filesystem> are available only with C++17 or later.
   Calculator.vcxproj -> C:\Users\User\source\repos\CPP_4SEM\Calculator\x64\Debug\Calculator.exe

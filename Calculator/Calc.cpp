@@ -38,13 +38,19 @@ std::vector<std::string> Calculator::parsing(const std::string& expression) {
         if (isdigit(cur_sym)) {
             result.push_back(numberExtract(expr, i));
         }
-        else if (isalpha(cur_sym)) {
+        else if (isalpha(cur_sym) || cur_sym == '^') {
             std::string func = operationExtract(expr, i);
             if (func == "^") {
-                func = "pow";
+                func = "pow"; // Преобразуем ^ в имя функции pow
             }
             if (!operations.operationExistance(func)) {
-                importer.loadDll(func, operations);
+                try {
+                    // Пытаемся загрузить соответствующий DLL
+                    importer.loadDll(func + ".dll", operations);
+                }
+                catch (const std::exception& e) {
+                    throw std::exception(("Failed to load operation: " + func).c_str());
+                }
             }
             while (!stack.empty() && operations.priority(func) <= operations.priority(stack.top())) {
                 result.push_back(stack.top());
@@ -67,7 +73,7 @@ std::vector<std::string> Calculator::parsing(const std::string& expression) {
             stack.pop();
             ++i;
         }
-        else if (operations.operationExistance({ cur_sym })) {
+        else if (operations.operationExistance(std::string(1, cur_sym))) {
             std::string op(1, cur_sym);
             while (!stack.empty() && operations.priority(op) <= operations.priority(stack.top())) {
                 result.push_back(stack.top());
