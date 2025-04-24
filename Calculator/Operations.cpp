@@ -9,6 +9,7 @@ Operations::Operations() {
 		throw std::exception("Division by zero!"); 
 	};
 
+
 	operation_priorities["*"] = 2;
 	operation_priorities["/"] = 2;
 	operation_priorities["+"] = 1;

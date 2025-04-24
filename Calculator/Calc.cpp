@@ -41,11 +41,10 @@ std::vector<std::string> Calculator::parsing(const std::string& expression) {
         else if (isalpha(cur_sym) || cur_sym == '^') {
             std::string func = operationExtract(expr, i);
             if (func == "^") {
-                func = "pow"; // Преобразуем ^ в имя функции pow
+                func = "pow";
             }
             if (!operations.operationExistance(func)) {
                 try {
-                    // Пытаемся загрузить соответствующий DLL
                     importer.loadDll(func + ".dll", operations);
                 }
                 catch (const std::exception& e) {
